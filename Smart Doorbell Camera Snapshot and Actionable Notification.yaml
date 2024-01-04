@@ -8,11 +8,11 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
-    snapshot_url:
-      name: Snapshot URL
-      description: Enter the URL to grab the camera snapshot from.
+    camera_entity:
+      name: Camera Entity
       selector:
-        text: {}
+        entity:
+          domain: camera
     notification_target:
       name: Notification Target
       selector:
@@ -30,15 +30,16 @@ trigger:
   to: 'on'
 
 action:
-  - service: shell_command.download_snapshot
+  - service: camera.snapshot
     data:
-      snapshot_url: !input 'snapshot_url'
+      entity_id: !input 'camera_entity'
+      filename: '/tmp/doorbell_camera_snapshot.jpg'
 
   - service: notify.mobile_app
     data:
       message: "Doorbell pressed!"
       data:
-        image: '/config/tmp/doorbell_camera_snapshot.jpg'
+        image: '/tmp/doorbell_camera_snapshot.jpg'
         actions:
           - action: "fb1675493782511558://"
             title: "View Live Feed"
