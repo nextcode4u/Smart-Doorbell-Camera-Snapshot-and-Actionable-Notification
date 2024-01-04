@@ -1,0 +1,48 @@
+blueprint:
+  name: Doorbell Camera Notification
+  description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
+  domain: automation
+  input:
+    doorbell_sensor:
+      name: Doorbell Sensor
+      description: The sensor that triggers when the doorbell is pressed.
+      selector:
+        entity:
+          domain: binary_sensor
+    camera_entity:
+      name: Camera Entity
+      description: The camera to take a snapshot from.
+      selector:
+        entity:
+          domain: camera
+    notification_target:
+      name: Notification Target
+      description: The device to send the notification to.
+      selector:
+        device:
+          integration: mobile_app
+
+trigger:
+  platform: state
+  entity_id: !input 'doorbell_sensor'
+  to: 'on'
+
+action:
+  - service: camera.snapshot
+    target:
+      entity_id: !input 'camera_entity'
+    data:
+      filename: '/config/www/doorbell_snapshot.jpg'
+  - delay: '00:00:01'  # Wait for the snapshot to be saved
+  - service: notify.mobile_app
+    target:
+      device_id: !input 'notification_target'
+    data:
+      message: "Doorbell pressed!"
+      data:
+        image: '/local/doorbell_snapshot.jpg'
+        actions:
+          - action: "open_door"
+            title: "Open Door"
+          - action: "view_camera"
+            title: "View Camera"
