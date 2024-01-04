@@ -1,6 +1,6 @@
 blueprint:
-  name: Doorbell Camera Notification
-  description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
+  name: Doorbell Camera Notification with Customizable Actions
+  description: Sends a camera snapshot as an actionable notification with customizable actions when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
@@ -21,6 +21,22 @@ blueprint:
       selector:
         device:
           integration: mobile_app
+    action_one:
+      name: First Action
+      description: Custom action one (e.g., 'open_door').
+      default: 'open_door'
+    action_one_title:
+      name: First Action Title
+      description: Title for the first action button.
+      default: 'Open Door'
+    action_two:
+      name: Second Action
+      description: Custom action two (e.g., 'view_camera').
+      default: 'view_camera'
+    action_two_title:
+      name: Second Action Title
+      description: Title for the second action button.
+      default: 'View Camera'
 
 trigger:
   platform: state
@@ -42,7 +58,7 @@ action:
       data:
         image: '/local/doorbell_snapshot.jpg'
         actions:
-          - action: "open_door"
-            title: "Open Door"
-          - action: "view_camera"
-            title: "View Camera"
+          - action: !input 'action_one'
+            title: !input 'action_one_title'
+          - action: !input 'action_two'
+            title: !input 'action_two_title'
