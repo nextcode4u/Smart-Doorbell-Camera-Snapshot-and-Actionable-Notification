@@ -1,92 +1,27 @@
 blueprint:
-  name: Doorbell Camera Notification with Multiple Actions
-  description: Sends a camera snapshot as an actionable notification with multiple customizable actions when the doorbell is pressed.
+  name: Doorbell Camera Notification
+  description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
       name: Doorbell Sensor
-      description: Select the sensor that detects when your doorbell is pressed.
       selector:
         entity:
           domain: binary_sensor
-    camera_entity:
-      name: Camera Entity
-      description: Choose the camera to take a snapshot.
-      selector:
-        entity:
-          domain: camera
+    snapshot_url:
+      name: Snapshot URL
+      description: Enter the URL to grab the camera snapshot from.
+      default: "http://your-camera-url/snapshot.jpg"
     notification_target:
       name: Notification Target
-      description: Select the device to receive the notification.
       selector:
         device:
           integration: mobile_app
-    action_one:
-      name: First Action (Optional)
-      description: Define the first custom action (e.g., 'open_door'). Leave blank if not used.
-      default: ''
-    action_one_title:
-      name: First Action Title
-      description: Title for the first action button. Leave blank if not used.
-      default: ''
-    action_two:
-      name: Second Action (Optional)
-      description: Define the second custom action (e.g., 'view_camera'). Leave blank if not used.
-      default: ''
-    action_two_title:
-      name: Second Action Title
-      description: Title for the second action button. Leave blank if not used.
-      default: ''
-    action_three:
-      name: Third Action - Call Service (Optional)
-      description: Define a service to be called for the third action. Leave blank if not used.
-      default: ''
-    action_three_title:
-      name: Third Action Title
-      description: Title for the third action button. Required if third action is used.
-      default: ''
-    action_three_entity:
-      name: Third Action Entity
-      description: Select the entity for the third action service call. Required if third action is used.
-      default: ''
+    lock_entity:
+      name: Lock Entity
       selector:
-        entity: {}
-    action_four:
-      name: Fourth Action - Call Service (Optional)
-      description: Define a service to be called for the fourth action. Leave blank if not used.
-      default: ''
-    action_four_title:
-      name: Fourth Action Title
-      description: Title for the fourth action button. Required if fourth action is used.
-      default: ''
-    action_four_entity:
-      name: Fourth Action Entity
-      description: Select the entity for the fourth action service call. Required if fourth action is used.
-      default: ''
-      selector:
-        entity: {}
-    action_five:
-      name: Fifth Action - Call Service (Optional)
-      description: Define a service to be called for the fifth action. Leave blank if not used.
-      default: ''
-    action_five_title:
-      name: Fifth Action Title
-      description: Title for the fifth action button. Required if fifth action is used.
-      default: ''
-    action_five_entity:
-      name: Fifth Action Entity
-      description: Select the entity for the fifth action service call. Required if fifth action is used.
-      default: ''
-      selector:
-        entity: {}
-    action_six:
-      name: Sixth Action (Optional)
-      description: Define the sixth custom action (e.g., 'toggle_light'). Leave blank if not used.
-      default: ''
-    action_six_title:
-      name: Sixth Action Title
-      description: Title for the sixth action button. Leave blank if not used.
-      default: ''
+        entity:
+          domain: lock
 
 trigger:
   platform: state
@@ -94,50 +29,20 @@ trigger:
   to: 'on'
 
 action:
-  - service: camera.snapshot
-    target:
-      entity_id: !input 'camera_entity'
-    data:
-      filename: '/config/www/doorbell_snapshot.jpg'
-  - delay: '00:00:01'  # Wait for the snapshot to be saved
+  - service: wget.download
+    data_template:
+      url: !input 'snapshot_url'
+      filename: "/config/tmp/doorbell_camera_snapshot.jpg"
+
   - service: notify.mobile_app
-    target:
-      device_id: !input 'notification_target'
     data:
       message: "Doorbell pressed!"
       data:
-        image: '/local/doorbell_snapshot.jpg'
+        image: "/config/tmp/doorbell_camera_snapshot.jpg"
         actions:
-          - action: !input 'action_one'
-            title: !input 'action_one_title'
-            condition: "{{ action_one != '' }}"
-          - action: !input 'action_two'
-            title: !input 'action_two_title'
-            condition: "{{ action_two != '' }}"
-          - action: !input 'action_three'
-            title: !input 'action_three_title'
-            condition: "{{ action_three != '' and action_three_title != '' }}"
-          - action: !input 'action_four'
-            title: !input 'action_four_title'
-            condition: "{{ action_four != '' and action_four_title != '' }}"
-          - action: !input 'action_five'
-            title: !input 'action_five_title'
-            condition: "{{ action_five != '' and action_five_title != '' }}"
-          - action: !input 'action_six'
-            title: !input 'action_six_title'
-            condition: "{{ action_six != '' and action_six_title != '' }}"
-  - condition: template
-    value_template: "{{ action_three != '' }}"
-  - service: !input 'action_three'
-    target:
-      entity_id: !input 'action_three_entity'
-  - condition: template
-    value_template: "{{ action_four != '' }}"
-  - service: !input 'action_four'
-    target:
-      entity_id: !input 'action_four_entity'
-  - condition: template
-    value_template: "{{ action_five != '' }}"
-  - service: !input 'action_five'
-    target:
-      entity_id: !input 'action_five_entity'
+          - action: "fb1675493782511558://"
+            title: "View Live Feed"
+          - service: "lock.unlock"
+            service_data:
+              entity_id: !input 'lock_entity'
+            title: "Unlock Door"
