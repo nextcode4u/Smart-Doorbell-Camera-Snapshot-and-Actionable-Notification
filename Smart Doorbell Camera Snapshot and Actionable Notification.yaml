@@ -1,6 +1,6 @@
 blueprint:
-  name: Doorbell Camera Notification with Three Optional Actions
-  description: Sends a camera snapshot as an actionable notification with three optional customizable actions when the doorbell is pressed.
+  name: Doorbell Camera Notification with Multiple Actions
+  description: Sends a camera snapshot as an actionable notification with multiple actions when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
@@ -21,32 +21,40 @@ blueprint:
       selector:
         device:
           integration: mobile_app
+    additional_entity_one:
+      name: Additional Entity One
+      description: Select an additional entity for use in the automation.
+      selector:
+        entity: {}
+    additional_entity_two:
+      name: Additional Entity Two
+      description: Select another additional entity for use in the automation.
+      selector:
+        entity: {}
     action_one:
-      name: First Action (Optional)
-      description: Define the first custom action (e.g., 'open_door'). Leave blank if not used.
+      name: First Action
+      description: Define the first custom action.
       default: ''
     action_one_title:
       name: First Action Title
-      description: Title for the first action button. Leave blank if not used.
+      description: Title for the first action button.
       default: ''
     action_two:
-      name: Second Action (Optional)
-      description: Define the second custom action (e.g., 'view_camera'). Leave blank if not used.
+      name: Second Action
+      description: Define the second custom action.
       default: ''
     action_two_title:
       name: Second Action Title
-      description: Title for the second action button. Leave blank if not used.
+      description: Title for the second action button.
       default: ''
     action_three:
-      name: Third Action - Call Service (Optional)
-      description: Define a service to be called (e.g., 'light.turn_on'). Leave blank if not used.
+      name: Third Action
+      description: Define the third custom action.
       default: ''
-    action_three_entity:
-      name: Third Action Entity
-      description: Select the entity for the third action service call. Required if third action is used.
+    action_three_title:
+      name: Third Action Title
+      description: Title for the third action button.
       default: ''
-      selector:
-        entity: {}
 
 trigger:
   platform: state
@@ -74,8 +82,6 @@ action:
           - action: !input 'action_two'
             title: !input 'action_two_title'
             condition: "{{ action_two != '' }}"
-  - condition: template
-    value_template: "{{ action_three != '' }}"
-  - service: !input 'action_three'
-    target:
-      entity_id: !input 'action_three_entity'
+          - action: !input 'action_three'
+            title: !input 'action_three_title'
+            condition: "{{ action_three != '' }}"
