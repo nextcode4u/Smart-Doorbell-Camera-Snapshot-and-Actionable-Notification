@@ -1,5 +1,5 @@
 blueprint:
-  name: Doorbell Camera Notification
+  name: Doorbell Camera Notification1
   description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
   domain: automation
   input:
