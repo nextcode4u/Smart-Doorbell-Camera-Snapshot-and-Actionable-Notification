@@ -1,42 +1,52 @@
 blueprint:
-  name: Doorbell Camera Notification with Customizable Actions
-  description: Sends a camera snapshot as an actionable notification with customizable actions when the doorbell is pressed.
+  name: Doorbell Camera Notification with Three Optional Actions
+  description: Sends a camera snapshot as an actionable notification with three optional customizable actions when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
       name: Doorbell Sensor
-      description: The sensor that triggers when the doorbell is pressed.
+      description: Select the sensor that detects when your doorbell is pressed.
       selector:
         entity:
           domain: binary_sensor
     camera_entity:
       name: Camera Entity
-      description: The camera to take a snapshot from.
+      description: Choose the camera to take a snapshot.
       selector:
         entity:
           domain: camera
     notification_target:
       name: Notification Target
-      description: The device to send the notification to.
+      description: Select the device to receive the notification.
       selector:
         device:
           integration: mobile_app
     action_one:
-      name: First Action
-      description: Custom action one (e.g., 'open_door').
-      default: 'open_door'
+      name: First Action (Optional)
+      description: Define the first custom action (e.g., 'open_door'). Leave blank if not used.
+      default: ''
     action_one_title:
       name: First Action Title
-      description: Title for the first action button.
-      default: 'Open Door'
+      description: Title for the first action button. Leave blank if not used.
+      default: ''
     action_two:
-      name: Second Action
-      description: Custom action two (e.g., 'view_camera').
-      default: 'view_camera'
+      name: Second Action (Optional)
+      description: Define the second custom action (e.g., 'view_camera'). Leave blank if not used.
+      default: ''
     action_two_title:
       name: Second Action Title
-      description: Title for the second action button.
-      default: 'View Camera'
+      description: Title for the second action button. Leave blank if not used.
+      default: ''
+    action_three:
+      name: Third Action - Call Service (Optional)
+      description: Define a service to be called (e.g., 'light.turn_on'). Leave blank if not used.
+      default: ''
+    action_three_entity:
+      name: Third Action Entity
+      description: Select the entity for the third action service call. Required if third action is used.
+      default: ''
+      selector:
+        entity: {}
 
 trigger:
   platform: state
@@ -60,5 +70,12 @@ action:
         actions:
           - action: !input 'action_one'
             title: !input 'action_one_title'
+            condition: "{{ action_one != '' }}"
           - action: !input 'action_two'
             title: !input 'action_two_title'
+            condition: "{{ action_two != '' }}"
+  - condition: template
+    value_template: "{{ action_three != '' }}"
+  - service: !input 'action_three'
+    target:
+      entity_id: !input 'action_three_entity'
