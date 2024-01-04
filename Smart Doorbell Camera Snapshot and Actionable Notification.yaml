@@ -1,26 +1,36 @@
 blueprint:
-  name: Doorbell Camera Notification
-  description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
+  name: Customizable Multi-Action Notification
+  description: Sends notifications with multiple customizable actions.
   domain: automation
   input:
     doorbell_sensor:
       name: Doorbell Sensor
-      description: The sensor that triggers when the doorbell is pressed.
+      description: Sensor that triggers the automation.
       selector:
         entity:
           domain: binary_sensor
     camera_entity:
       name: Camera Entity
-      description: The camera to take a snapshot from.
+      description: Camera for taking snapshots.
       selector:
         entity:
           domain: camera
-    notification_target:
-      name: Notification Target
-      description: The device to send the notification to.
+    notification_targets:
+      name: Notification Targets
+      description: Devices to send notifications to.
       selector:
-        device:
-          integration: mobile_app
+        target:
+          entity:
+            domain: mobile_app
+          multiple: true
+    custom_action_1:
+      name: Custom Action 1
+      description: First custom action URI.
+      default: "reolink://open"
+    custom_title_1:
+      name: Custom Title 1
+      description: Title for the first custom action.
+      default: "View in Reolink App"
 
 trigger:
   platform: state
@@ -33,16 +43,17 @@ action:
       entity_id: !input 'camera_entity'
     data:
       filename: '/config/www/doorbell_snapshot.jpg'
-  - delay: '00:00:01'  # Wait for the snapshot to be saved
-  - service: notify.mobile_app
-    target:
-      device_id: !input 'notification_target'
-    data:
-      message: "Doorbell pressed!"
-      data:
-        image: '/local/doorbell_snapshot.jpg'
-        actions:
-          - action: "open_door"
-            title: "Open Door"
-          - action: "view_camera"
-            title: "View Camera"
+  - delay: '00:00:01'
+  - repeat:
+      count: "{{ expand('input.notification_targets') | count }}"
+      sequence:
+        - service: notify.mobile_app
+          data:
+            message: "Doorbell pressed!"
+            data:
+              image: '/local/doorbell_snapshot.jpg'
+              actions:
+                - action: "custom_action_1"
+                  title: !input 'custom_title_1'
+                  uri: !input 'custom_action_1'
+                # Add more actions here
