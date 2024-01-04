@@ -21,10 +21,36 @@ blueprint:
       selector:
         device:
           integration: mobile_app
-    # Existing actions
-    # ... (Include existing action inputs here)
-
-    # Additional entity action options
+    action_one:
+      name: First Action (Optional)
+      description: Define the first custom action (e.g., 'open_door'). Leave blank if not used.
+      default: ''
+    action_one_title:
+      name: First Action Title
+      description: Title for the first action button. Leave blank if not used.
+      default: ''
+    action_two:
+      name: Second Action (Optional)
+      description: Define the second custom action (e.g., 'view_camera'). Leave blank if not used.
+      default: ''
+    action_two_title:
+      name: Second Action Title
+      description: Title for the second action button. Leave blank if not used.
+      default: ''
+    action_three:
+      name: Third Action - Call Service (Optional)
+      description: Define a service to be called for the third action. Leave blank if not used.
+      default: ''
+    action_three_title:
+      name: Third Action Title
+      description: Title for the third action button. Required if third action is used.
+      default: ''
+    action_three_entity:
+      name: Third Action Entity
+      description: Select the entity for the third action service call. Required if third action is used.
+      default: ''
+      selector:
+        entity: {}
     action_four:
       name: Fourth Action - Call Service (Optional)
       description: Define a service to be called for the fourth action. Leave blank if not used.
@@ -39,7 +65,6 @@ blueprint:
       default: ''
       selector:
         entity: {}
-
     action_five:
       name: Fifth Action - Call Service (Optional)
       description: Define a service to be called for the fifth action. Leave blank if not used.
@@ -54,8 +79,6 @@ blueprint:
       default: ''
       selector:
         entity: {}
-
-    # One more general action option
     action_six:
       name: Sixth Action (Optional)
       description: Define the sixth custom action (e.g., 'toggle_light'). Leave blank if not used.
@@ -85,10 +108,15 @@ action:
       data:
         image: '/local/doorbell_snapshot.jpg'
         actions:
-          # Existing actions
-          # ... (Include existing action configurations here)
-
-          # Additional actions
+          - action: !input 'action_one'
+            title: !input 'action_one_title'
+            condition: "{{ action_one != '' }}"
+          - action: !input 'action_two'
+            title: !input 'action_two_title'
+            condition: "{{ action_two != '' }}"
+          - action: !input 'action_three'
+            title: !input 'action_three_title'
+            condition: "{{ action_three != '' and action_three_title != '' }}"
           - action: !input 'action_four'
             title: !input 'action_four_title'
             condition: "{{ action_four != '' and action_four_title != '' }}"
@@ -98,8 +126,11 @@ action:
           - action: !input 'action_six'
             title: !input 'action_six_title'
             condition: "{{ action_six != '' and action_six_title != '' }}"
-
-  # Conditions and service calls for additional entity actions
+  - condition: template
+    value_template: "{{ action_three != '' }}"
+  - service: !input 'action_three'
+    target:
+      entity_id: !input 'action_three_entity'
   - condition: template
     value_template: "{{ action_four != '' }}"
   - service: !input 'action_four'
