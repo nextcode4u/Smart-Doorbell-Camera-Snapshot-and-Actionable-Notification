@@ -1,6 +1,6 @@
 blueprint:
   name: Doorbell Camera Notification with Multiple Actions
-  description: Sends a camera snapshot as an actionable notification with multiple actions when the doorbell is pressed.
+  description: Sends a camera snapshot as an actionable notification with multiple customizable actions when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
@@ -21,39 +21,48 @@ blueprint:
       selector:
         device:
           integration: mobile_app
-    additional_entity_one:
-      name: Additional Entity One
-      description: Select an additional entity for use in the automation.
+    # Existing actions
+    # ... (Include existing action inputs here)
+
+    # Additional entity action options
+    action_four:
+      name: Fourth Action - Call Service (Optional)
+      description: Define a service to be called for the fourth action. Leave blank if not used.
+      default: ''
+    action_four_title:
+      name: Fourth Action Title
+      description: Title for the fourth action button. Required if fourth action is used.
+      default: ''
+    action_four_entity:
+      name: Fourth Action Entity
+      description: Select the entity for the fourth action service call. Required if fourth action is used.
+      default: ''
       selector:
         entity: {}
-    additional_entity_two:
-      name: Additional Entity Two
-      description: Select another additional entity for use in the automation.
+
+    action_five:
+      name: Fifth Action - Call Service (Optional)
+      description: Define a service to be called for the fifth action. Leave blank if not used.
+      default: ''
+    action_five_title:
+      name: Fifth Action Title
+      description: Title for the fifth action button. Required if fifth action is used.
+      default: ''
+    action_five_entity:
+      name: Fifth Action Entity
+      description: Select the entity for the fifth action service call. Required if fifth action is used.
+      default: ''
       selector:
         entity: {}
-    action_one:
-      name: First Action
-      description: Define the first custom action.
+
+    # One more general action option
+    action_six:
+      name: Sixth Action (Optional)
+      description: Define the sixth custom action (e.g., 'toggle_light'). Leave blank if not used.
       default: ''
-    action_one_title:
-      name: First Action Title
-      description: Title for the first action button.
-      default: ''
-    action_two:
-      name: Second Action
-      description: Define the second custom action.
-      default: ''
-    action_two_title:
-      name: Second Action Title
-      description: Title for the second action button.
-      default: ''
-    action_three:
-      name: Third Action
-      description: Define the third custom action.
-      default: ''
-    action_three_title:
-      name: Third Action Title
-      description: Title for the third action button.
+    action_six_title:
+      name: Sixth Action Title
+      description: Title for the sixth action button. Leave blank if not used.
       default: ''
 
 trigger:
@@ -76,12 +85,28 @@ action:
       data:
         image: '/local/doorbell_snapshot.jpg'
         actions:
-          - action: !input 'action_one'
-            title: !input 'action_one_title'
-            condition: "{{ action_one != '' }}"
-          - action: !input 'action_two'
-            title: !input 'action_two_title'
-            condition: "{{ action_two != '' }}"
-          - action: !input 'action_three'
-            title: !input 'action_three_title'
-            condition: "{{ action_three != '' }}"
+          # Existing actions
+          # ... (Include existing action configurations here)
+
+          # Additional actions
+          - action: !input 'action_four'
+            title: !input 'action_four_title'
+            condition: "{{ action_four != '' and action_four_title != '' }}"
+          - action: !input 'action_five'
+            title: !input 'action_five_title'
+            condition: "{{ action_five != '' and action_five_title != '' }}"
+          - action: !input 'action_six'
+            title: !input 'action_six_title'
+            condition: "{{ action_six != '' and action_six_title != '' }}"
+
+  # Conditions and service calls for additional entity actions
+  - condition: template
+    value_template: "{{ action_four != '' }}"
+  - service: !input 'action_four'
+    target:
+      entity_id: !input 'action_four_entity'
+  - condition: template
+    value_template: "{{ action_five != '' }}"
+  - service: !input 'action_five'
+    target:
+      entity_id: !input 'action_five_entity'
