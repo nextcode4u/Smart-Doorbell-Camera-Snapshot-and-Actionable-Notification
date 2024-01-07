@@ -1,2 +1,2 @@
-# Smart-Doorbell-Camera-Snapshot-and-Actionable-Notification
+# Reolink-iOS-Smart-Doorbell-Camera-Snapshot-and-Actionable-Notification
 This Home Assistant blueprint enhances your home security and convenience. Upon pressing the doorbell, it captures a snapshot from your doorbell camera and sends an actionable notification to your mobile device. The notification includes the snapshot and options to perform quick actions like viewing the live camera feed or opening the door. Ideal for smart homes, this blueprint integrates seamlessly with your existing doorbell and camera setup, providing real-time alerts and control at your fingertips.
