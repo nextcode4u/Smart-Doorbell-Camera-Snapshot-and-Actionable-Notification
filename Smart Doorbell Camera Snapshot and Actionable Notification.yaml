@@ -1,6 +1,6 @@
 blueprint:
   name: Doorbell Press Camera Snapshot Notification
-  description: Send a notification with a camera snapshot to multiple devices when the doorbell is pressed.
+  description: Send a notification with a camera snapshot to a selected device when the doorbell is pressed.
   domain: automation
   input:
     camera_entity:
@@ -8,12 +8,12 @@ blueprint:
       selector:
         entity:
           domain: camera
-    notify_devices:
-      name: Notify Devices
+    notify_device:
+      name: Notify Device
+      description: The device to send notifications to.
       selector:
-        target:
-          entity:
-            domain: notify
+        device:
+          integration: mobile_app
 
 trigger:
   - platform: state
@@ -27,8 +27,9 @@ action:
     data:
       filename: '/tmp/doorbell_snapshot.jpg'
   - delay: 00:00:01  # Wait for the snapshot to be taken
-  - service: notify.mobile_app
-    target: !input 'notify_devices'
+  - service: notify.notify
+    target:
+      device_id: !input 'notify_device'
     data:
       message: "Doorbell pressed!"
       data:
