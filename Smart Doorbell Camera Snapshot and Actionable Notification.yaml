@@ -1,14 +1,8 @@
 blueprint:
-  name: Doorbell Binary Input Camera Snapshot Notification
-  description: Send a notification with a camera snapshot to multiple devices when the binary input doorbell sensor is activated.
+  name: Doorbell Press Camera Snapshot Notification
+  description: Send a notification with a camera snapshot to multiple devices when the doorbell is pressed.
   domain: automation
   input:
-    doorbell_sensor:
-      name: Doorbell Sensor
-      selector:
-        entity:
-          domain: binary_sensor
-          device_class: binary_input  # Updated device class
     camera_entity:
       name: Camera
       selector:
@@ -23,7 +17,7 @@ blueprint:
 
 trigger:
   - platform: state
-    entity_id: !input 'doorbell_sensor'
+    entity_id: binary_sensor.doorbell_visitor
     to: 'on'
 
 action:
