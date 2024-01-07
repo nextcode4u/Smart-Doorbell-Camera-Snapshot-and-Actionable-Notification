@@ -1,6 +1,6 @@
 blueprint:
-  name: Doorbell Camera Notification1
-  description: Sends a camera snapshot as an actionable notification when the doorbell is pressed.
+  name: Doorbell Press Camera Snapshot Notification
+  description: Send a notification with a camera snapshot to multiple devices when the doorbell is pressed.
   domain: automation
   input:
     doorbell_sensor:
@@ -8,42 +8,40 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+          device_class: doorbell
     camera_entity:
-      name: Camera Entity
+      name: Camera
       selector:
         entity:
           domain: camera
-    notification_target:
-      name: Notification Target
+    notify_devices:
+      name: Notify Devices
       selector:
-        device:
-          integration: mobile_app
-    lock_entity:
-      name: Lock Entity
-      selector:
-        entity:
-          domain: lock
+        target:
+          entity:
+            domain: notify
 
 trigger:
-  platform: state
-  entity_id: !input 'doorbell_sensor'
-  to: 'on'
+  - platform: state
+    entity_id: !input 'doorbell_sensor'
+    to: 'on'
 
 action:
   - service: camera.snapshot
-    data:
+    target:
       entity_id: !input 'camera_entity'
-      filename: '/tmp/doorbell_camera_snapshot.jpg'
-
+    data:
+      filename: '/tmp/doorbell_snapshot.jpg'
+  - delay: 00:00:01  # Wait for the snapshot to be taken
   - service: notify.mobile_app
+    target: !input 'notify_devices'
     data:
       message: "Doorbell pressed!"
       data:
-        image: '/tmp/doorbell_camera_snapshot.jpg'
+        image: '/tmp/doorbell_snapshot.jpg'
         actions:
-          - action: "fb1675493782511558://"
-            title: "View Live Feed"
-          - service: "lock.unlock"
-            service_data:
-              entity_id: !input 'lock_entity'
-            title: "Unlock Door"
+          - action: URI
+            title: "Open Reolink App"
+            uri: "fb1675493782511558://"  # Reolink app custom URI
+          - action: DISMISS
+            title: "Dismiss"
